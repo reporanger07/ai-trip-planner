@@ -44,24 +44,19 @@ function CreateTrip() {
       .replace("{budget}", formData.budget);
 
     console.log("Generated Prompt:", FINAL_PROMPT);
-    // ✅ Correct
-    const aiResponse = await getAIResponse(FINAL_PROMPT);
-    console.log("AI Response:", aiResponse);
-    setTripResponse({ details: aiResponse });
 
     try {
-      const response = await fetch(
-        "https://your-gemini-api-endpoint.com/generate-trip",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ prompt: FINAL_PROMPT }),
-        }
-      );
-      const data = await response.json();
-      setTripResponse(data);
+      // Get response from AI (OpenRouter Gemini)
+      const aiResponse = await getAIResponse(FINAL_PROMPT);
+      console.log("AI Response:", aiResponse);
+
+      // Check if the AI response is valid
+      if (aiResponse) {
+        setTripResponse({ details: aiResponse });
+      } else {
+        console.error("AI Response is undefined or invalid");
+        toast("Failed to generate a valid trip response.");
+      }
     } catch (error) {
       console.error("Error generating trip:", error);
       toast("Failed to generate trip, please try again later.");
@@ -210,7 +205,7 @@ function CreateTrip() {
       {tripResponse && (
         <div className="mt-10">
           <h2 className="font-bold text-2xl">Your Custom Trip Plan</h2>
-          <p>{tripResponse.details}</p>
+          <pre className="text-gray-700">{JSON.stringify(tripResponse.details, null, 2)}</pre>
         </div>
       )}
     </div>
